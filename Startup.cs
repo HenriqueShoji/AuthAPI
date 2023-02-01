@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Auth_API.Repositories;
+using Auth_API.Services;
+using Auth_API.Services.SecurityService;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using System;
 
 namespace AuthAPI
 {
@@ -10,18 +15,21 @@ namespace AuthAPI
         }
 
         public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext
+            services.AddDbContext<Context>(opts => opts.UseLazyLoadingProxies().UseMySQL(Configuration.GetConnectionString("SQLAuth")));
             services.AddControllers();
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "BankApi", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "AuthAPI", Version = "v1", Description = "Authentication API" });
                 c.ResolveConflictingActions(x => x.First());
             });
+
+            services.AddTransient<SecureService>();
+            services.AddScoped<SecureService>();
+            services.AddTransient<AuthService>();
+            services.AddScoped<AuthService>();
         }
         public void Configure(WebApplication app, IWebHostEnvironment env)
         {
@@ -37,8 +45,8 @@ namespace AuthAPI
 
             app.MapControllers();
         }
-    }
 
+    }
     public interface IStartup
     {
         IConfiguration Configuration { get; }
