@@ -8,11 +8,9 @@ namespace Auth_API.Controllers
     [Route("auth")]
     public class AuthController : Controller
     {
-        public IConfiguration _configuration { get; set; }
         public AuthService _authService { get; set; }
-        public AuthController(IConfiguration configuration, AuthService authService) 
+        public AuthController(AuthService authService) 
         {
-            _configuration = configuration;
             _authService = authService;
         }
 
